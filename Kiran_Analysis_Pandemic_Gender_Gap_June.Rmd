@@ -1,0 +1,265 @@
+---
+title: Investigating the impact of the COVID-19 pandemic on the gender productivity
+  gap in academia
+author: "Kiran Gok Lune Lee"
+date: "`r Sys.Date()`"
+geometry: margin=2cm 
+bibliograpwhy: ./references.bib
+output:
+  pdf_document:
+    latex_engine: xelatex
+    fig_width: 8
+    fig_height: 6
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+    fig_width: 12
+    fig_height: 10
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
+
+
+```
+
+## Load stuff
+
+```{r eval = FALSE, echo = TRUE}
+## install packages like so
+install.packages("pacman")
+pacman::p_load(devtools, tidyverse, metafor, patchwork, R.rsp, emmeans)
+devtools::install_github("daniel1noble/orchaRd", force = TRUE, build_vignettes = TRUE)
+library(orchaRd)
+
+```
+
+```{r eval = TRUE, echo = TRUE}
+library(metafor)
+library(readxl)
+library(ggplot2)
+library(formatR)
+library(devtools)
+library(tidyverse)
+library(patchwork)
+library(orchaRd)
+
+
+## Load data with all papers
+all_data<-read_xlsx("Data3.xlsx")
+colnames(all_data) <- make.names(colnames(all_data), unique = TRUE)
+
+
+### set effect sizes
+all_data$Effect.size.used.in.MA<-as.numeric(all_data$Effect.size.used.in.MA)
+all_data$Variance.used<-as.numeric(all_data$Variance.used)
+all_data$vi <- all_data$Variance.used
+all_data$yi <- all_data$Effect.size.used.in.MA
+```
+
+
+\newpage
+
+## Hypothesis 1: During pandemic conditions the gender gap in academic productivity has increased.
+
+Prediction 1a: The pandemic has increased the gender gap in productivity (as indicated by an overall negative effect size).
+
+Hierarchical mixed effect meta-analysis with all papers.
+Studies with multiple effect sizes are controlled for. Looks like an overall negative effect: during pandemic conditions the gender gap in academic productivity has increased. Forest plot produced for visual represenation.
+
+However, meta-analysing all papers is probably not so useful considering productivity is measured in different ways (self-reported/submissions/publications)- see later section.
+
+```{r eval = TRUE, echo = TRUE}
+#Article ID refers to the article ID number the effect size comes from
+all_data$ID.article<-as.factor(all_data$Article.ID)
+#ID refers to the unique effect size ID number
+all_data$ID.observation<-as.factor(all_data$ID)
+
+m<-rma.mv(yi, vi, random=~1|ID.article/ID.observation,data=all_data)
+m
+forest (m,  slab=all_data$Author, xlim=c(-2,2), ylim=c(-1, 120), digits= 2, xlab="Raw proportion", mlab="Overall effect (46)")
+text(-1,122, "Author(s) and Year", pos=2, font=2, cex=0.8)
+text(2,122, "Effect size [95% CI]", pos=2, font=2, cex=0.8)
+```
+
+
+### Investigating productivity measure as a moderator.
+
+Prediction 1b: Studies that measure productivity as self reported detect stronger increase in gender gap than the studies that measure it as number of submissions, while the studies based on number of publications detect the weakest increase. This is because self-reporting productivty measured via questionnaire can measure the pandemics effects in real time. It can take a while to submit research and even longer to publish research, which therefore may not immediately be detected in numbers of submissions or publications.
+
+```{r eval = TRUE, echo = TRUE}
+all_data$Productivity.measure<-all_data$Broad.productivity.measure
+all_data$Productivity.measure[all_data$Productivity.measure=="Other"]<-"Questionnaire-reported"
+
+tapply(all_data$ID.observation, all_data$Productivity.measure, length)
+
+m.area <- rma.mv(yi, vi, mods= ~ Productivity.measure, random=~1|ID.article/ID.observation, data=all_data)
+m.area
+
+m.area1 <- rma.mv(yi, vi, mods= ~ Productivity.measure-1, random=~1|ID.article/ID.observation, data=all_data)
+m.area1
+
+```
+
+Orchard plot: Aggregated effect sizes for individual-based studies and group-based studies. Each dot is an effect size. Size of dot is precision in relation to variance (a function of sample size). Mean effect size for each group is the outlined dot with 95% confidence intervals as the thick horizontal black bar and "prediction intervals" (a range of plausible effect size values fo ra new study assuming an average sample size) as the thin horizontal bars. k=49 (21) means 49 effect sizes from 21 articles.
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=5}
+# Figure 1
+
+
+p1 <- orchard_plot(m.area1, mod="Productivity.measure", group = "Article.ID", data=all_data, xlab = "Effect size", transfm = "none", angle=0)+
+  theme(axis.text = element_text(size = 19, colour ="black", face = "bold",
+                                 hjust = 0.5,
+                                 vjust = -0.5,
+                                 angle = 0))+
+  theme(axis.title = element_text(size = 19, colour ="black", face = "bold",
+                                  hjust = 0.5,
+                                  vjust = -0.5,
+                                  angle = 0)) 
+
+p1 
+
+```
+### Heterogeneity for all papers
+```{r eval = TRUE, echo = FALSE}
+I2_all_data<-i2_ml(m)
+I2_all_data
+```
+## Funnel plot
+
+Prediction 1b:	We do not predict to find evidence of publication bias.
+
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=5}
+measured_data<-subset(all_data, all_data$Self.reported.or.measured == "Measured")
+meta_measured <- rma.mv(yi=yi, V=vi, data=as.data.frame(measured_data))
+funnel(meta_measured, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
+       yaxis="seinv",xlab="effect size (Zr)",ylab="precision (1/SE)",digits=c(1,0),xlim=c(-2,2),ylim=c(1,200), legend=TRUE)
+
+selfreported_data<-subset(all_data, all_data$Self.reported.or.measured == "Self-reported")
+meta_selfreported <- rma.mv(yi=yi, V=vi, data=as.data.frame(selfreported_data))
+funnel(meta_selfreported, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
+       yaxis="seinv",xlab="effect size (Zr)",ylab="precision (1/SE)",digits=c(1,0),xlim=c(-2,2),ylim=c(1,200), legend=TRUE)
+
+
+```
+\newpage
+
+## Hypothesis 2: During pandemic conditions the gender gap in academic productivity has increased differentially across research fields.
+
+Prediction 2: The pandemic has increased the gender gap in academic productivity more in fields that [already had a previously greater gender gap](https://royalsocietypublishing.org/doi/10.1098/rsos.181566) because these lacked gender-equitable support measures to prevent female academics experiencing research production setbacks.
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=5}
+research_field <- metafor::rma.mv(yi = yi, V = vi, mods = ~Broad.research.field, random = list(~1 |
+    Article.ID, ~1 | ID), data = all_data)
+summary(research_field)
+
+research_field1 <- metafor::rma.mv(yi = yi, V = vi, mods = ~Broad.research.field - 1, random = list(~1 |
+    Article.ID, ~1 | ID), data = all_data)
+
+summary(research_field1)
+
+orchaRd::orchard_plot(research_field1, mod = "Broad.research.field", group = "Article.ID", data = all_data, xlab = "Correlation coefficient",
+    alpha = 0.5, transfm = "tanh", angle = 45,  cb = FALSE)
+
+# same analysis but only used measured studies
+research_field2 <- metafor::rma.mv(yi = yi, V = vi, mods = ~Broad.research.field - 1, random = list(~1 |
+    Article.ID, ~1 | ID), data = measured_data)
+
+summary(research_field2)
+
+orchaRd::orchard_plot(research_field2, mod = "Broad.research.field", group = "Article.ID", data = measured_data, xlab = "Correlation coefficient",
+    alpha = 0.5, transfm = "tanh", angle = 45,  cb = FALSE)
+```
+
+\newpage
+
+## Hypothesis 3: Pandemic conditions made it difficult for women to lead research, rather than support research.
+
+Prediction 3: We predict the pandemic has increased the gender gap more in first and last, rather than middle authorship positions as female academics have been more limited in undertaking leading research roles, but not supportive research roles in lockdown conditions.
+
+Note: Only 3 effect sizes from 2 studies that use middle authorship makes it difficult to test this.
+
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=5}
+authorship_position <- metafor::rma.mv(yi = yi, V = vi, mods = ~Specific.productivity.measure, random = list(~1 |
+    Article.ID, ~1 | ID), data = subset(all_data, all_data$Self.reported.or.measured=="Measured"))
+
+summary(authorship_position)
+
+authorship_position1 <- metafor::rma.mv(yi = yi, V = vi, mods = ~Specific.productivity.measure - 1, random = list(~1 |
+    Article.ID, ~1 | ID), data = subset(all_data, all_data$Self.reported.or.measured=="Measured"))
+
+summary(authorship_position1)
+
+orchaRd::orchard_plot(authorship_position, mod = "Specific.productivity.measure", group = "Article.ID", data = subset(all_data, all_data$Self.reported.or.measured=="Measured"), xlab = "Correlation coefficient",
+    alpha = 0.5, transfm = "tanh", angle = 45,  cb = FALSE)
+```
+Prediction 3b: We predict the pandemic has increased the gender gap more for research fields of a given authorship position that already had a previously greater gender gap because these lacked gender-equitable support measures to prevent female academics experiencing research production setbacks.
+
+
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=5}
+all_data$nwomenprepandemic<-round(as.numeric(all_data$X..women.authors.pre.pandemic)*as.numeric(all_data$n.pre.pandemic), digits=0)
+all_data$nmenprepandemic<-round(as.numeric(all_data$n.pre.pandemic)-as.numeric(all_data$nwomenprepandemic), digits=0)
+all_data$nwomenduringpandemic<-round(as.numeric(all_data$X..women.authors.during.pandemic)*as.numeric(all_data$n.during.pandemic), digits=0)
+all_data$nmenduringpandemic<-round(as.numeric(all_data$n.during.pandemic)-as.numeric(all_data$nwomenduringpandemic), digits=0)
+
+previous_bias <- metafor::rma.mv(yi = yi, V = vi, mods = ~ cbind(nmenprepandemic/nwomenprepandemic), random = list(~1 |
+    Article.ID, ~1 | ID), data = subset(all_data, all_data$Self.reported.or.measured=="Measured"))
+
+#model suggests that contrary to our prediction, the pandemic has increased the gender gap more for research fields of a given authorship position that were previously less biased.
+summary(previous_bias)
+
+all_data_long<-all_data
+all_data_long$X..women.authors.before.pandemic<-all_data_long$X..women.authors.pre.pandemic
+all_data_long$X..women.authors.before.pandemic<-as.numeric(all_data_long$X..women.authors.before.pandemic)
+all_data_long$X..women.authors.during.pandemic<-as.numeric(all_data_long$X..women.authors.during.pandemic)
+
+all_data_long <- pivot_longer(all_data_long, c(X..women.authors.before.pandemic, X..women.authors.during.pandemic), names_to = "Period")
+
+#this plot shows the above model somewhat
+ggplot(all_data_long, aes(x=factor(Period), y=as.numeric(value), color=factor(Broad.research.field),  group = ID)) + 
+  geom_point(position = position_jitter(width = .0)) + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  labs(
+    x = "x",
+    color = "Broad.research.field"
+  ) 
+
+#this plot shows perhaps more clearly the change in gender gap according to previous gender gap and research field.
+ggplot(all_data_long, aes(x=factor(Period), y=as.numeric(value), color=factor(Broad.research.field),  group = Broad.research.field)) + 
+  geom_point(position = position_jitter(width = .0)) + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  labs(
+    x = "x",
+    color = "Broad.research.field"
+  ) 
+
+```
+
+Prediction 3b: We predict the pandemic has increased the gender gap more for research fields of a given authorship position that already had a previously greater gender gap because these lacked gender-equitable support measures to prevent female academics experiencing research production setbacks.
+
+
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=5}
+all_data$nwomenprepandemic<-round(as.numeric(all_data$X..women.authors.pre.pandemic)*as.numeric(all_data$n.pre.pandemic), digits=0)
+all_data$nmenprepandemic<-round(as.numeric(all_data$n.pre.pandemic)-as.numeric(all_data$nwomenprepandemic), digits=0)
+all_data$nwomenduringpandemic<-round(as.numeric(all_data$X..women.authors.during.pandemic)*as.numeric(all_data$n.during.pandemic), digits=0)
+all_data$nmenduringpandemic<-round(as.numeric(all_data$n.during.pandemic)-as.numeric(all_data$nwomenduringpandemic), digits=0)
+
+previous_bias <- metafor::rma.mv(yi = yi, V = vi, mods = ~ cbind(nmenprepandemic/nwomenprepandemic), random = list(~1 |
+    Article.ID, ~1 | ID), data = subset(all_data, all_data$Self.reported.or.measured=="Measured"))
+
+summary(previous_bias)
+
+ggplot(all_data) + 
+  geom_segment(aes(x = 1, xend = 2, y = as.numeric(X..women.authors.pre.pandemic), yend = as.numeric(X..women.authors.during.pandemic), color=Broad.research.field), size=0.6) +
+  scale_x_discrete(name = "Time period", breaks = c("1", "2"), labels = c("Pre-pandemic", "During pandemic"), limits = c(1, 2)) +
+  scale_y_continuous(name = "Proportion female authors")+ 
+  theme(legend.position="right")+ 
+  theme(legend.title = element_text(size = 4), 
+               legend.text = element_text(size = 4)) 
+
+
+```
+
+
+
