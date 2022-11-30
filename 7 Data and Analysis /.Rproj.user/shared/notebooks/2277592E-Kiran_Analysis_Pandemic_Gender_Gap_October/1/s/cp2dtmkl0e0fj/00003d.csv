@@ -1,0 +1,4 @@
+"0","measured_data<-subset(all_data, all_data$Self.reported.or.measured == ""Measured"")"
+"0","meta_measured <- rma.mv(yi=yi, V=vi, data=as.data.frame(measured_data))"
+"0","f1<-funnel(meta_measured, level=c(90, 95, 99), shade=c(""white"", ""gray"", ""darkgray""),"
+"0","       yaxis=""seinv"",xlab=""Effect size"",ylab=""Precision (1/SE)"",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back=""white"", hlines = ""lightgray"", steps = 3) "

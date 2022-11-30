@@ -1,0 +1,5 @@
+"0","text(2,122, ""Effect size [95% CI]"", pos=2, font=2, cex=0.8)
+"
+"2","Error in text.default(2, 122, ""Effect size [95% CI]"", pos = 2, font = 2,  : 
+  plot.new has not been called yet
+"

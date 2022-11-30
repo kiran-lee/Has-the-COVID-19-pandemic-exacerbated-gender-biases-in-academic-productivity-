@@ -1,0 +1,15 @@
+"0","ggsave(""figure3a.png"")"
+"2","Saving 5.4 x 5.4 in image
+"
+"2","`geom_smooth()` using formula 'y ~ x'
+"
+"2","Warning:"
+"2"," Removed 62 rows containing non-finite values (stat_smooth).
+"
+"2","Warning:"
+"2"," Removed 62 rows containing missing values (geom_point).
+"
+"0","selfreported_data<-subset(all_data, all_data$Self.reported.or.measured == ""Self-reported"")"
+"0","meta_selfreported <- rma.mv(yi=yi, V=vi, data=as.data.frame(selfreported_data))"
+"0","f2<-funnel(meta_selfreported, level=c(90, 95, 99), shade=c(""white"", ""gray"", ""darkgray""),"
+"0","       yaxis=""seinv"",xlab=""Effect size"",ylab=""Precision (1/SE)"",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back=""white"", hlines = ""lightgray"", steps = 3)"

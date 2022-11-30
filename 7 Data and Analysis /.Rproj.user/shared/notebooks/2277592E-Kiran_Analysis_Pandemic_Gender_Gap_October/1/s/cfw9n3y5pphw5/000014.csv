@@ -1,0 +1,16 @@
+"0",""
+"0","measured_data$Specific.productivity.measure[measured_data$Specific.productivity.measure==""Sole authorship""]  <- ""Last authorship"""
+"0",""
+"0",""
+"0",""
+"0","measured_data$Specific.productivity.measure.reordered<-factor(measured_data$Specific.productivity.measure, c(""Last authorship"", ""Middle authorship"", ""First authorship"", ""Corresponding authorship"", ""Any authorship""))"
+"0",""
+"0","levels(measured_data$Specific.productivity.measure.reordered) <- gsub("" "", ""\n"", levels(measured_data$Specific.productivity.measure.reordered))"
+"0",""
+"0","authorship_position <- metafor::rma.mv(yi = yi, V = vi, mods = ~Specific.productivity.measure.reordered, random = list(~1 | Article.ID, ~1 | ID), data = measured_data)"
+"2","Warning:"
+"2"," Rows with NAs omitted from model fitting.
+"
+"2","Error in metafor::rma.mv(yi = yi, V = vi, mods = ~Specific.productivity.measure.reordered,  : 
+  Processing terminated since k <= 1.
+"
