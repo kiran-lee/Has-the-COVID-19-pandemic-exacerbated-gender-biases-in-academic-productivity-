@@ -508,6 +508,7 @@ round(I2_m_het, digits = 10)
 Funnel plots.
 
 ```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
+par(mfrow=c(1,2))
 meta_measured <- rma.mv(yi=yi, V=vi, data=as.data.frame(measured_data))
 f1<-funnel(meta_measured, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
        yaxis="seinv",xlab="Effect size",ylab="Precision (1/SE)",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back="white", hlines = "white", main="a) Survey response") 

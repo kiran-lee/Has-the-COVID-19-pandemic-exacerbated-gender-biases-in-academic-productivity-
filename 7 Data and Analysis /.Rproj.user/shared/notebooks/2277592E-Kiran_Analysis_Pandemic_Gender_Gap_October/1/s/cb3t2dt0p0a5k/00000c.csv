@@ -1,9 +1,0 @@
-"0","#Figure 1"
-"0",""
-"0","my.orchard(m, mod=""1"", alpha=0.75,data = all_data, whisker=0.075, group = ""Article.ID"", xlab = ""Effect size"")+"
-"0","     annotate(""text"", size=6, y=0.50, x=1.06, label=paste(""-0.070 [-0.1020,-0.0380]""))"
-"2","Warning in k == TRUE && g == TRUE && k.pos == ""right"" :"
-"2","
- "
-"2"," 'length(x) = 2 > 1' in coercion to 'logical(1)'
-"

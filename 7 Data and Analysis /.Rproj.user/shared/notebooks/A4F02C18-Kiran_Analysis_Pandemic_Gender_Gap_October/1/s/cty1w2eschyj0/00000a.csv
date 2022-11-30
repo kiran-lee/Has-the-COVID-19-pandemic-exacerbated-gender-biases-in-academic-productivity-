@@ -1,5 +1,0 @@
-"0","## Load data with all papers
-all_data<-read_xlsx(""all_data.xlsx"")
-"
-"2","Error: `path` does not exist: ‘all_data.xlsx’
-"
