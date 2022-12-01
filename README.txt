@@ -29,7 +29,6 @@ Folders (numbered list) and its contents, with descriptions:
 
 
 8) Report
-- “references.bib” containing all references used in report
 - “figure1.png” figure 1 of report
 - “figure2.png” figure 2 of report
 - “figure3.png” figure 3 of report
