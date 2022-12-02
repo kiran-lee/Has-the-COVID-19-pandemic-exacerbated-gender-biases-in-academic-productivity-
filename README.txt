@@ -24,19 +24,23 @@ Folders (numbered list) and its contents, with descriptions:
 - “all_data.xlsx” containing all data used in analysis
 - “meta_data.xlsx” containing all data collected
 - “InterobserverReliability.r” R script investigating inter-observer reliability when screening articles
-- “Analysis_Plots_Script_Pandemic_Gender_Gap_Repository.Rmd” R markdown file with all analysis and plots of effect sizes.
-- “Analysis_Plots_Script_Pandemic_Gender_Gap_Repository.pdf” pdf file of knitted R markdown with analysis and plots of effect sizes.
+- “Analysis-and-Plots.Rmd” R markdown file with all analysis and plots of effect sizes.
+- “Analysis-and-Plots.pdf” pdf file of knitted R markdown with analysis and plots of effect sizes.
 
 
-8) Report
+8) Manuscript, figures, tables and supplementary materials
 - “figure1.png” figure 1 of report
 - “figure2.png” figure 2 of report
 - “figure3.png” figure 3 of report
 - “figure4.png” figure 4 of report
 - “figure5.png” figure 5 of report
-- “figure6a.png” figure 6a of report
-- “figure6b.png” figure 6b of report
-- “Paper.docx” paper to be submitted
+- “figure6.png” figure 6 of report
+- “manuscript.docx” manuscript to be submitted
+- “figures.docx” figures and figure legends to be submitted
+- "table1.docx" table 1 to be submitted
+- "supplementary_materials.docx" supplementary materials to be submitted
+- "PRISMA_checklist.docx" PRISMA checklist to be submitted
+
 
 
 

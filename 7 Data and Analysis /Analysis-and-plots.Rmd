@@ -48,6 +48,8 @@ library(devtools)
 library(tidyverse)
 library(patchwork)
 library(orchaRd)
+library(gridExtra)
+
 ```
 
 
@@ -507,25 +509,20 @@ round(I2_m_het, digits = 10)
 ### Figure 6
 Funnel plots.
 
-```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
-par(mfrow=c(1,2))
-meta_measured <- rma.mv(yi=yi, V=vi, data=as.data.frame(measured_data))
-f1<-funnel(meta_measured, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
-       yaxis="seinv",xlab="Effect size",ylab="Precision (1/SE)",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back="white", hlines = "white", main="a) Survey response") 
-
-f1
-ggsave("figure6a.png")
+```{r eval = TRUE, echo = TRUE, fig.width=4, fig.height=4}
+par(mfrow = c(2, 1))
 
 selfreported_data<-subset(all_data, all_data$Self.reported.or.measured == "Self-reported")
 meta_selfreported <- rma.mv(yi=yi, V=vi, data=as.data.frame(selfreported_data))
-f2<-funnel(meta_selfreported, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
-       yaxis="seinv",xlab="Effect size",ylab="Precision (1/SE)",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back="white", hlines = "white", main="b) Article output")
+f1<-funnel(meta_selfreported, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
+       yaxis="seinv",xlab="Effect size",ylab="Precision (1/SE)",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back="white", hlines = "white", main="a) Survey responses")
 
+f1
+
+meta_measured <- rma.mv(yi=yi, V=vi, data=as.data.frame(measured_data))
+f2<-funnel(meta_measured, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
+       yaxis="seinv",xlab="Effect size",ylab="Precision (1/SE)",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back="white", hlines = "white", main="b) Article output") 
 f2
-ggsave("figure6b.png")
-
-
-
 
 
 ```
@@ -535,7 +532,7 @@ Multilevel meta-regression test for publication bias. Significant positive slope
 ```{r eval = TRUE, echo = TRUE, fig.width=9, fig.height=9}
 # Application of Equation 24 from the main manuscript of Nakagawa et. al 2021
 
-# Note that we are removing the intercept in this model (using '-1') because the intercept is not of interest at this point. Instead we prefer to see the slopes of the continues moderators and the estimates of all the levels of the categorical moderator 'CaptivityC'. Note that whether or not the intercept is removed, it does not change the conclusions of the small-study effects test or the decline effects test.
+
 publication.bias.model.r.all.se <- rma.mv(yi, vi,
                                           mods=~Variance.as.standard.error+Self.reported.or.measured -1,   
                                           random=list(~1|ID.article/ID.observation),
