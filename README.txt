@@ -36,11 +36,12 @@ Folders (numbered list) and its contents, with descriptions:
 - “figure5.png” figure 5 of report
 - “figure6.png” figure 6 of report
 - “manuscript.docx” manuscript to be submitted
+- "manuscript_figures_table_suppl_embedded.docx" manuscript with figures, table, supplementary materials embedded.
 - “figures.docx” figures and figure legends to be submitted
 - "table1.docx" table 1 to be submitted
 - "supplementary_materials.docx" supplementary materials to be submitted
 - "PRISMA_checklist.docx" PRISMA checklist to be submitted
-
+- "GenderGapAcademiaCOVID-19PandemicMeta-Analysis.pdf" manuscript for eLife submission
 
 
 
