@@ -44,5 +44,5 @@ Folders (numbered list) and its contents, with descriptions:
 - "GenderGapAcademiaCOVID-19PandemicMeta-Analysis.pdf" manuscript for eLife submission
 
 
-
+The pre-print can be found on MetaRxiv DOI:10.31222/osf.io/56ren
 
