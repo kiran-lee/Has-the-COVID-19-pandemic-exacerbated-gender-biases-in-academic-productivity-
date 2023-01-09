@@ -273,9 +273,8 @@ text(2,122, "Effect size [95% CI]", pos=2, font=2, cex=0.8)
 
 ```{r, fig.width=12, fig.height=12}
 
-my.orchard(m, mod="1", alpha=0.5,data = all_data, whisker=0.025
-           , group = "Article.ID", xlab = "Effect size")+
-     annotate("text", size=6, y=0.50, x=1.06, label=paste("-0.070 [-0.102, -0.038]"))+
+my.orchard(m, mod="1", alpha=0.5,data = all_data, whisker=0.025, group = "Article.ID", xlab = "Effect size")+
+     annotate("text", size=6, y=0.66, x=1.2, label=paste("-0.070 [-0.102, -0.038]"))+
   scale_fill_manual(values=c("#DC267F"))
 
 ggsave("figure1.png", width=10, height=10, dpi=300)
@@ -289,7 +288,7 @@ all_data$Broad.productivity.measure[all_data$Broad.productivity.measure=="Other"
 
 tapply(all_data$ID.observation, all_data$Broad.productivity.measure, length)
 
-all_data$Broad.productivity.measure.reordered<-factor(all_data$Broad.productivity.measure, c("Publications", "Submissions", "Survey"))
+all_data$Broad.productivity.measure.reordered<-factor(all_data$Broad.productivity.measure, c("Submissions", "Publications", "Survey"))
 
 m.area <- rma.mv(yi, vi, mods= ~ Broad.productivity.measure.reordered, random=~1|ID.article/ID.observation, data=all_data)
 m.area
@@ -304,14 +303,14 @@ m.area1
 ```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
 
 p1 <- my.orchard(m.area1, mod="Broad.productivity.measure.reordered", group = "Article.ID", data=all_data, xlab = "Effect size", whisker=0.05,transfm = "none")+
-     annotate("text", size=6, y=0.6, x=3.09, label=paste("-0.193 [-0.273, -0.113]"))+
-     annotate("text", size=6, y=0.6, x=2.09, label=paste("-0.046 [-0.082, -0.009]"))+
-     annotate("text", size=6, y=0.6, x=1.09, label=paste("-0.039 [-0.076, -0.001]"))+
+     annotate("text", size=6, y=0.62, x=3.15, label=paste("-0.193 [-0.273, -0.113]"))+
+     annotate("text", size=6, y=0.62, x=2.15, label=paste("-0.046 [-0.082, -0.009]"))+
+     annotate("text", size=6, y=0.62, x=1.15, label=paste("-0.039 [-0.076, -0.001]"))+
   scale_fill_manual(values=c("#785EF0","#DC267F","#FE6100"))
 
 p1 
 
-ggsave("figure2.png")
+ggsave("figure2.png", width=10, height=10, dpi=300)
 ```
 
 \newpage
@@ -321,7 +320,7 @@ ggsave("figure2.png")
 Prediction 2a: The pandemic has increased the gender gap in academic productivity more in fields that [already had a previously greater gender gap](https://royalsocietypublishing.org/doi/10.1098/rsos.181566) because these lacked gender-equitable support measures to prevent female academics experiencing research production setbacks.
 
 ```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
-all_data$Broad.research.field.reordered<-factor(all_data$Broad.research.field, c("TEMCP","Biological sciences", "Medicine", "Multidisciplinary", "Social sciences"))
+all_data$Broad.research.field.reordered<-factor(all_data$Broad.research.field, c("Biological sciences","TEMCP", "Medicine", "Social sciences", "Multidisciplinary"))
 
 levels(all_data$Broad.research.field.reordered) <- gsub(" ", "\n", levels(all_data$Broad.research.field.reordered))
 
@@ -341,11 +340,11 @@ summary(research_field1)
 
 my.orchard(research_field1, mod = "Broad.research.field.reordered", group = "Article.ID", data = all_data, whisker=0.08, xlab = "Effect size",
     alpha = 0.5, transfm = "tanh",  cb = FALSE)+
-     annotate("text", size=6, y=0.5, x=5.09, label=paste("-0.079 [-0.141, -0.018]"))+
-     annotate("text", size=6, y=0.50, x=4.09, label=paste("-0.058 [-0.139, 0.023]"))+
-     annotate("text", size=6, y=0.5, x=3.09, label=paste("-0.051 [-0.090, 0.012]"))+
-     annotate("text", size=6, y=0.50, x=2.09, label=paste("-0.004 [-0.059, 0.050]"))+
-     annotate("text", size=6, y=0.5, x=1.09, label=paste("0.006 [-0.048, 0.060]"))+
+     annotate("text", size=6, y=0.5, x=5.13, label=paste("-0.120 [-0.188, -0.053]"))+
+     annotate("text", size=6, y=0.5, x=4.13, label=paste("-0.092 [-0.153, -0.032]"))+
+     annotate("text", size=6, y=0.5, x=3.13, label=paste("-0.072 [-0.113, -0.031]"))+
+     annotate("text", size=6, y=0.5, x=2.13, label=paste("-0.011 [-0.067, 0.045]"))+
+     annotate("text", size=6, y=0.5, x=1.13, label=paste("0.006 [-0.053, 0.066]"))+
   scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
 
 ggsave("figure3.png", width=10, height=10, dpi=300)
@@ -468,14 +467,14 @@ summary(authorship_position1)
 
 my.orchard(authorship_position, mod = "Specific.productivity.measure.reordered", group = "Article.ID", data = measured_data, whisker = 0.08, xlab = "Effect size",
     alpha = 0.5)+
-     annotate("text", size=6, y=-0.4, x=1.09, label=paste("-0.039 [-0.100, -0.023]"))+
-     annotate("text", size=6, y=-0.4, x=2.09, label=paste("-0.046 [-0.175, 0.084]"))+
-     annotate("text", size=6, y=-0.4, x=3.09, label=paste("-0.039 [-0.100, 0.023]"))+
-     annotate("text", size=6, y=-0.4, x=4.09, label=paste("-0.047 [-0.120, 0.027]"))+
-     annotate("text", size=6, y=-0.4, x=5.09, label=paste("-0.041 [-0.106, 0.023]"))+
+     annotate("text", size=6, y=-0.4, x=1.2, label=paste("-0.034 [-0.092, 0.023]"))+
+     annotate("text", size=6, y=-0.4, x=2.2, label=paste("-0.046 [-0.178, 0.087]"))+
+     annotate("text", size=6, y=-0.4, x=3.2, label=paste("-0.031 [-0.068, 0.006]"))+
+     annotate("text", size=6, y=-0.4, x=4.2, label=paste("-0.016 [-0.111, 0.078]"))+
+     annotate("text", size=6, y=-0.4, x=5.2, label=paste("-0.047 [-0.127, -0.034]"))+
   scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
 
-ggsave("figure5.png")
+ggsave("figure5.png", width=10, height=10, dpi=300)
 ```
 
 \newpage
