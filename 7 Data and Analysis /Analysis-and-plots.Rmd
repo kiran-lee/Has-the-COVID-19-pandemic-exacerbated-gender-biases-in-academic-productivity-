@@ -78,13 +78,35 @@ all_data$Effect.size.used.in.MA<-as.factor(all_data$Effect.size.used.in.MA)
 
 ### subset effect sizes using submission/publication output only
 measured_data<-subset(all_data, all_data$Self.reported.or.measured == "Measured")
+survey_data<-subset(all_data, all_data$Self.reported.or.measured == "Self-reported")
 
 #Article ID refers to the article ID number the effect size comes from
 all_data$ID.article<-as.factor(all_data$Article.ID)
 #ID refers to the unique effect size ID number
 all_data$ID.observation<-as.factor(all_data$ID)
 
+#Average time frame before pandemic and during pandemic for article studies
+measured_data$Timeframe.pre.pandemic<-as.numeric(measured_data$Timeframe.pre.pandemic)
+mean(measured_data$Timeframe.pre.pandemic, na.rm= TRUE)
+sd(measured_data$Timeframe.pre.pandemic, na.rm = TRUE)
+range(measured_data$Timeframe.pre.pandemic, na.rm = TRUE)
 
+measured_data$Timeframe.during.pandemic<-as.numeric(measured_data$Timeframe.during.pandemic)
+mean(measured_data$Timeframe.during.pandemic, na.rm = TRUE)
+sd(measured_data$Timeframe.during.pandemic, na.rm = TRUE)
+range(measured_data$Timeframe.during.pandemic, na.rm = TRUE)
+
+#Average end date for survey studies
+survey_data$End.date.of.survey<-as.numeric(survey_data$End.date.of.survey)
+as.Date(mean(survey_data$End.date.of.survey, na.rm =TRUE), origin = "1899-12-30")
+sd(survey_data$End.date.of.survey, na.rm =TRUE)
+as.Date(range(survey_data$End.date.of.survey, na.rm =TRUE), origin = "1899-12-30")
+as.Date(max(survey_data$End.date.of.survey, na.rm =TRUE), origin = "1899-12-30")-as.Date(min(survey_data$End.date.of.survey, na.rm =TRUE), origin = "1899-12-30")
+
+#Geographic regions
+table(all_data$Broad.region)
+table(measured_data$Broad.region)
+table(survey_data$Broad.region)
 ```
 
 
@@ -262,11 +284,15 @@ Looks like an overall negative effect: during pandemic conditions the gender gap
 #Hierarchical mixed effect meta-analysis with all papers. Studies with multiple effect sizes are controlled for.
 m<-rma.mv(yi, vi, random=~1|ID.article/ID.observation, data=all_data)
 m
+summary(m)
 
 #Forest plot produced for visual representation.
-forest (m,  slab=all_data$Author, xlim=c(-2,2), ylim=c(-1, 120), digits= 2, xlab="Raw proportion", mlab="Overall effect (46)")
+png(file='forest.png')
+forest (m,  slab=all_data$Author, xlim=c(-2,2), ylim=c(-1, 140), digits= 2, xlab="Raw proportion", mlab="Overall effect (46)", cex=0.4)
 text(-1,122, "Author(s) and Year", pos=2, font=2, cex=0.8)
 text(2,122, "Effect size [95% CI]", pos=2, font=2, cex=0.8)
+while (!is.null(dev.list()))  dev.off()
+
 ```
 
 ### Figure 1
@@ -274,7 +300,7 @@ text(2,122, "Effect size [95% CI]", pos=2, font=2, cex=0.8)
 ```{r, fig.width=12, fig.height=12}
 
 my.orchard(m, mod="1", alpha=0.5,data = all_data, whisker=0.025, group = "Article.ID", xlab = "Effect size")+
-     annotate("text", size=6, y=0.66, x=1.2, label=paste("-0.070 [-0.102, -0.038]"))+
+     annotate("text", size=6, y=0.66, x=1.2, label=paste("-0.071 [-0.099, -0.043]"))+
   scale_fill_manual(values=c("#DC267F"))
 
 ggsave("figure1.png", width=10, height=10, dpi=300)
@@ -292,6 +318,7 @@ all_data$Broad.productivity.measure.reordered<-factor(all_data$Broad.productivit
 
 m.area <- rma.mv(yi, vi, mods= ~ Broad.productivity.measure.reordered, random=~1|ID.article/ID.observation, data=all_data)
 m.area
+summary(m.area)
 
 m.area1 <- rma.mv(yi, vi, mods= ~ Broad.productivity.measure.reordered-1, random=~1|ID.article/ID.observation, data=all_data)
 m.area1
@@ -303,9 +330,9 @@ m.area1
 ```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
 
 p1 <- my.orchard(m.area1, mod="Broad.productivity.measure.reordered", group = "Article.ID", data=all_data, xlab = "Effect size", whisker=0.05,transfm = "none")+
-     annotate("text", size=6, y=0.62, x=3.15, label=paste("-0.193 [-0.273, -0.113]"))+
-     annotate("text", size=6, y=0.62, x=2.15, label=paste("-0.046 [-0.082, -0.009]"))+
-     annotate("text", size=6, y=0.62, x=1.15, label=paste("-0.039 [-0.076, -0.001]"))+
+     annotate("text", size=6, y=-0.9, x=3.3, label=paste("-0.192 [-0.272, -0.113]"))+
+     annotate("text", size=6, y=-0.9, x=2.3, label=paste("-0.047 [-0.085, -0.008]"))+
+     annotate("text", size=6, y=-0.9, x=1.3, label=paste("-0.053 [-0.087, -0.018]"))+
   scale_fill_manual(values=c("#785EF0","#DC267F","#FE6100"))
 
 p1 
@@ -333,6 +360,22 @@ research_field1 <- metafor::rma.mv(yi = yi, V = vi, mods = ~Broad.research.field
 
 summary(research_field1)
 ```
+Prediction 2a Measured studies: The pandemic has increased the gender gap in academic productivity more in fields that [already had a previously greater gender gap](https://royalsocietypublishing.org/doi/10.1098/rsos.181566) because these lacked gender-equitable support measures to prevent female academics experiencing research production setbacks.
+
+```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
+measured_data$Broad.research.field.reordered<-factor(measured_data$Broad.research.field, c("TEMCP", "Biological sciences","Multidisciplinary", "Medicine", "Social sciences"))
+
+levels(measured_data$Broad.research.field.reordered) <- gsub(" ", "\n", levels(measured_data$Broad.research.field.reordered))
+
+research_fieldm <- metafor::rma.mv(yi = yi, V = vi, mods = ~Broad.research.field.reordered, random = list(~1 |
+    Article.ID, ~1 | ID), data = measured_data)
+summary(research_fieldm)
+
+research_field1m <- metafor::rma.mv(yi = yi, V = vi, mods = ~Broad.research.field.reordered - 1, random = list(~1 |
+    Article.ID, ~1 | ID), data = measured_data)
+
+summary(research_field1m)
+```
 
 ### Figure 3
 
@@ -340,17 +383,32 @@ summary(research_field1)
 
 my.orchard(research_field1, mod = "Broad.research.field.reordered", group = "Article.ID", data = all_data, whisker=0.08, xlab = "Effect size",
     alpha = 0.5, transfm = "tanh",  cb = FALSE)+
-     annotate("text", size=6, y=0.5, x=5.13, label=paste("-0.120 [-0.188, -0.053]"))+
-     annotate("text", size=6, y=0.5, x=4.13, label=paste("-0.092 [-0.153, -0.032]"))+
-     annotate("text", size=6, y=0.5, x=3.13, label=paste("-0.072 [-0.113, -0.031]"))+
-     annotate("text", size=6, y=0.5, x=2.13, label=paste("-0.011 [-0.067, 0.045]"))+
-     annotate("text", size=6, y=0.5, x=1.13, label=paste("0.006 [-0.053, 0.066]"))+
+     annotate("text", size=6, y=0.5, x=5.13, label=paste("-0.109 [-0.173, -0.045]"))+
+     annotate("text", size=6, y=0.5, x=4.13, label=paste("-0.096 [-0.155, -0.038]"))+
+     annotate("text", size=6, y=0.5, x=3.13, label=paste("-0.083 [-0.113, -0.031]"))+
+     annotate("text", size=6, y=0.5, x=2.13, label=paste("-0.017 [-0.069, 0.034]"))+
+     annotate("text", size=6, y=0.5, x=1.13, label=paste("0.007 [-0.051, 0.064]"))+
   scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
 
 ggsave("figure3.png", width=10, height=10, dpi=300)
 
 ```
+### Figure 3 Measured data
 
+```{r eval = TRUE, echo = TRUE, fig.width=6, fig.height=6}
+
+my.orchard(research_field1m, mod = "Broad.research.field.reordered", group = "Article.ID", data = measured_data, whisker=0.08, xlab = "Effect size",
+    alpha = 0.5, transfm = "tanh",  cb = FALSE)+
+     annotate("text", size=6, y=-0.45, x=5.3, label=paste("-0.084 [-0.143, -0.024]"))+
+     annotate("text", size=6, y=-0.45, x=4.3, label=paste("-0.066 [-0.102, -0.029]"))+
+     annotate("text", size=6, y=-0.45, x=3.3, label=paste("-0.050 [-0.125, 0.024]"))+
+     annotate("text", size=6, y=-0.45, x=2.3, label=paste("-0.003 [-0.057, 0.050]"))+
+     annotate("text", size=6, y=-0.45, x=1.3, label=paste("-0.003 [-0.053, 0.048]"))+
+  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
+
+ggsave("figure3.png", width=10, height=10, dpi=300)
+
+```
 Prediction 2b: We predict the pandemic has increased the gender gap more for research fields of a given authorship position that already had a previously greater gender gap because less support may have been available to women to balance the effects of the pandemic. 
 
 ```{r eval = TRUE, echo = TRUE, fig.width=8, fig.height=8}
@@ -365,15 +423,16 @@ previous_bias <- metafor::rma.mv(yi = yi, V = vi, mods = ~ cbind(nmenprepandemic
 #Model suggests that contrary to our prediction, the pandemic has increased the gender gap more for research fields of a given authorship position that were previously less biased.
 summary(previous_bias)
 
-measured_data$X..women.authors.pre.pandemic<-as.numeric(measured_data$X..women.authors.pre.pandemic)
-measured_data$X..women.authors.during.pandemic<-as.numeric(measured_data$X..women.authors.during.pandemic)
-measured_data<-subset(measured_data, !is.na(measured_data$X..women.authors.pre.pandemic))
-measured_data<-subset(measured_data, !is.na(measured_data$X..women.authors.during.pandemic))
-socialsciences<-subset(measured_data, measured_data$Broad.research.field=="Social sciences")
-medicine<-subset(measured_data, measured_data$Broad.research.field=="Medicine")
-multi<-subset(measured_data, measured_data$Broad.research.field=="Multidisciplinary")
-temcp<-subset(measured_data, measured_data$Broad.research.field=="TEMCP technology, engineering, mathematic, chemistry and physics")
-bio<-subset(measured_data, measured_data$Broad.research.field=="Biological sciences")
+measured_data_numbers<-measured_data
+measured_data_numbers$X..women.authors.pre.pandemic<-as.numeric(measured_data_numbers$X..women.authors.pre.pandemic)
+measured_data_numbers$X..women.authors.during.pandemic<-as.numeric(measured_data_numbers$X..women.authors.during.pandemic)
+measured_data_numbers<-subset(measured_data_numbers, !is.na(measured_data_numbers$X..women.authors.pre.pandemic))
+measured_data_numbers<-subset(measured_data_numbers, !is.na(measured_data_numbers$X..women.authors.during.pandemic))
+socialsciences<-subset(measured_data_numbers, measured_data_numbers$Broad.research.field=="Social sciences")
+medicine<-subset(measured_data_numbers, measured_data_numbers$Broad.research.field=="Medicine")
+multi<-subset(measured_data_numbers, measured_data_numbers$Broad.research.field=="Multidisciplinary")
+temcp<-subset(measured_data_numbers, measured_data_numbers$Broad.research.field=="TEMCP")
+bio<-subset(measured_data_numbers, measured_data_numbers$Broad.research.field=="Biological sciences")
 
 socialsciences$X..women.authors.pre.pandemic<-as.numeric(socialsciences$X..women.authors.pre.pandemic)
 socialsciences$X..women.authors.during.pandemic<-as.numeric(socialsciences$X..women.authors.during.pandemic)
@@ -387,8 +446,10 @@ mean((temcp$X..women.authors.pre.pandemic))
 mean((temcp$X..women.authors.during.pandemic))
 mean((bio$X..women.authors.pre.pandemic))
 mean((bio$X..women.authors.during.pandemic))
+mean((measured_data_numbers$X..women.authors.pre.pandemic))
+mean((measured_data_numbers$X..women.authors.during.pandemic))
 
-all_data$Broad.research.field.reordered.opposite<-factor(all_data$Broad.research.field, c( "Social sciences","Multidisciplinary","Medicine","Biological sciences","TEMCP" ))
+all_data$Broad.research.field.reordered.opposite<-factor(all_data$Broad.research.field, c( "Social sciences","Medicine","Multidisciplinary","Biological sciences","TEMCP" ))
 all_data_long<-all_data
 all_data_long$X..women.authors.before.pandemic<-all_data_long$X..women.authors.pre.pandemic
 all_data_long$X..women.authors.before.pandemic<-as.numeric(all_data_long$X..women.authors.before.pandemic)
@@ -416,7 +477,7 @@ all_data_long$'Broad research field'<-all_data_long$Broad.research.field.reorder
 
 ```{r eval = TRUE, echo = TRUE, fig.width=8, fig.height=8}
 
-ggplot(all_data_long, aes(x=factor(Period), y=as.numeric(value), color=factor(Broad.research.field.reordered),  group = Broad.research.field.reordered)) + 
+ggplot(all_data_long, aes(x=factor(Period), y=as.numeric(value), color=factor(Broad.research.field.reordered.opposite),  group = Broad.research.field.reordered.opposite)) + 
   geom_point(position = position_jitter(width = .0)) + 
   geom_smooth(method = 'lm', se = FALSE) + 
   labs(
@@ -467,11 +528,11 @@ summary(authorship_position1)
 
 my.orchard(authorship_position, mod = "Specific.productivity.measure.reordered", group = "Article.ID", data = measured_data, whisker = 0.08, xlab = "Effect size",
     alpha = 0.5)+
-     annotate("text", size=6, y=-0.4, x=1.2, label=paste("-0.034 [-0.092, 0.023]"))+
-     annotate("text", size=6, y=-0.4, x=2.2, label=paste("-0.046 [-0.178, 0.087]"))+
-     annotate("text", size=6, y=-0.4, x=3.2, label=paste("-0.031 [-0.068, 0.006]"))+
-     annotate("text", size=6, y=-0.4, x=4.2, label=paste("-0.016 [-0.111, 0.078]"))+
-     annotate("text", size=6, y=-0.4, x=5.2, label=paste("-0.047 [-0.127, -0.034]"))+
+     annotate("text", size=6, y=-0.56, x=1.3, label=paste("-0.052 [-0.130, 0.026]"))+
+     annotate("text", size=6, y=-0.56, x=2.3, label=paste("-0.046 [-0.178, 0.087]"))+
+     annotate("text", size=6, y=-0.56, x=3.3, label=paste("-0.040 [-0.074, -0.006]"))+
+     annotate("text", size=6, y=-0.56, x=4.3, label=paste("-0.041 [-0.122, 0.040]"))+
+     annotate("text", size=6, y=-0.56, x=5.3, label=paste("-0.052 [-0.130, -0.026]"))+
   scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
 
 ggsave("figure5.png", width=10, height=10, dpi=300)
@@ -498,7 +559,7 @@ m_het <- rma.mv(yi = yi,
                       data=all_data)
                 
 I2_m_het<-i2_ml(m_het)
-round(I2_m_het, digits = 10) 
+round(I2_m_het, digits = 1) 
 
 
 ```
@@ -508,7 +569,9 @@ round(I2_m_het, digits = 10)
 ### Figure 6
 Funnel plots.
 
-```{r eval = TRUE, echo = TRUE, fig.width=4, fig.height=4}
+```{r eval = TRUE, echo = TRUE, fig.width=7, fig.height=7}
+png("figure6.png", width = 205, height = 205, units='mm', res = 300)
+  plot(1:10, 1:10, mar=c(3.5,0,3,0))
 par(mfrow = c(2, 1))
 
 selfreported_data<-subset(all_data, all_data$Self.reported.or.measured == "Self-reported")
@@ -522,6 +585,8 @@ meta_measured <- rma.mv(yi=yi, V=vi, data=as.data.frame(measured_data))
 f2<-funnel(meta_measured, level=c(90, 95, 99), shade=c("white", "gray", "darkgray"),
        yaxis="seinv",xlab="Effect size",ylab="Precision (1/SE)",digits=c(1,0),xlim=c(-1.5,1.5),ylim=c(1,180), legend=TRUE,back="white", hlines = "white", main="b) Article output") 
 f2
+
+dev.off()
 
 
 ```
@@ -541,3 +606,55 @@ publication.bias.model.r.all.se <- rma.mv(yi, vi,
 summary(publication.bias.model.r.all.se)
 
 ```
+##Sensitivity analyses
+Repeat analysis excluding the studies that use the following less direct measured of productivity: Research time (N = 4), job-loss (N = 1), burnout (N = 1), and number of projects (N = 1). It looks like excluding these does not change the results much.
+```{r eval = TRUE, echo = TRUE, fig.width=9, fig.height=9}
+# Create dataframe without less direct measures of productivity
+sensitive_data<-subset(all_data, all_data$Broad.specific.productivity!="Job loss")
+sensitive_data<-subset(sensitive_data, Broad.specific.productivity!="Burn-out")
+sensitive_data<-subset(sensitive_data, Broad.specific.productivity!="Work hours")
+sensitive_data<-subset(sensitive_data, Broad.specific.productivity!="Projects")
+sensitive_data<-subset(sensitive_data, Broad.specific.productivity!="Job loss")
+```
+### Repeat model 1 (all effect sizes)
+```{r eval = TRUE, echo = TRUE, fig.width=9, fig.height=9}
+sm1<-rma.mv(yi, vi, random=~1|ID.article/ID.observation, data=sensitive_data)
+sm1
+summary(sm1)
+```
+
+
+### Repeat model 2 (separated by study type)
+```{r eval = TRUE, echo = TRUE, fig.width=9, fig.height=9}
+
+sensitive_data$Broad.productivity.measure[sensitive_data$Broad.productivity.measure=="Other"]<-"Survey"
+
+tapply(sensitive_data$ID.observation, sensitive_data$Broad.productivity.measure, length)
+
+sensitive_data$Broad.productivity.measure.reordered<-factor(sensitive_data$Broad.productivity.measure, c("Submissions", "Publications", "Survey"))
+
+sm.area <- rma.mv(yi, vi, mods= ~ Broad.productivity.measure.reordered, random=~1|ID.article/ID.observation, data=sensitive_data)
+sm.area
+summary(sm.area)
+
+sm.area1 <- rma.mv(yi, vi, mods= ~ Broad.productivity.measure.reordered-1, random=~1|ID.article/ID.observation, data=sensitive_data)
+sm.area1
+
+sp1 <- my.orchard(sm.area1, mod="Broad.productivity.measure.reordered", group = "Article.ID", data=sensitive_data, xlab = "Effect size", whisker=0.05,transfm = "none")+
+     annotate("text", size=6, y=0.62, x=3.15, label=paste("-0.193 [-0.273, -0.113]"))+
+     annotate("text", size=6, y=0.62, x=2.15, label=paste("-0.046 [-0.082, -0.009]"))+
+     annotate("text", size=6, y=0.62, x=1.15, label=paste("-0.039 [-0.076, -0.001]"))+
+  scale_fill_manual(values=c("#785EF0","#DC267F","#FE6100"))
+
+sp1 
+
+ggsave("sfigure2.png", width=10, height=10, dpi=300)
+```
+### Leave-one-out model
+```{r eval = TRUE, echo = TRUE, fig.width=9, fig.height=9}
+m<-rma.uni(yi, vi, random=~1|ID.article/ID.observation, data=all_data)
+m
+l1o<-leave1out(m)
+forest(l1o$estimate, sei=l1o$se, header=TRUE, xlab="Leave One Out Estimate", refline=coef(res),xlim=c(-39,24))
+```
+
