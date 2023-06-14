@@ -49,6 +49,7 @@ library(tidyverse)
 library(patchwork)
 library(orchaRd)
 library(gridExtra)
+library(openxlsx)
 
 ```
 
@@ -61,7 +62,7 @@ colnames(all_data) <- make.names(colnames(all_data), unique = TRUE)
 
 ### set effect sizes
 all_data$Effect.size.used.in.MA<-as.numeric(all_data$Effect.size.used.in.MA)
-all_data$Variance.used<-as.numeric(all_data$Variance.used)
+all_data$Variance.used<-as.numeric(all_data$Variance.used.in.MA)
 all_data$vi <- all_data$Variance.used
 all_data$yi <- all_data$Effect.size.used.in.MA
 
@@ -412,10 +413,10 @@ ggsave("figure3.png", width=10, height=10, dpi=300)
 Prediction 2b: We predict the pandemic has increased the gender gap more for research fields of a given authorship position that already had a previously greater gender gap because less support may have been available to women to balance the effects of the pandemic. 
 
 ```{r eval = TRUE, echo = TRUE, fig.width=8, fig.height=8}
-all_data$nwomenprepandemic<-round(as.numeric(all_data$X..women.authors.pre.pandemic)*as.numeric(all_data$n.pre.pandemic), digits=0)
-all_data$nmenprepandemic<-round(as.numeric(all_data$n.pre.pandemic)-as.numeric(all_data$nwomenprepandemic), digits=0)
-all_data$nwomenduringpandemic<-round(as.numeric(all_data$X..women.authors.during.pandemic)*as.numeric(all_data$n.during.pandemic), digits=0)
-all_data$nmenduringpandemic<-round(as.numeric(all_data$n.during.pandemic)-as.numeric(all_data$nwomenduringpandemic), digits=0)
+all_data$nwomenprepandemic<-round(as.numeric(all_data$X..women.authors.pre.pandemic)*as.numeric(all_data$N.pre.pandemic), digits=0)
+all_data$nmenprepandemic<-round(as.numeric(all_data$N.pre.pandemic)-as.numeric(all_data$nwomenprepandemic), digits=0)
+all_data$nwomenduringpandemic<-round(as.numeric(all_data$X..women.authors.during.pandemic)*as.numeric(all_data$N.during.pandemic), digits=0)
+all_data$nmenduringpandemic<-round(as.numeric(all_data$N.during.pandemic)-as.numeric(all_data$nwomenduringpandemic), digits=0)
 
 previous_bias <- metafor::rma.mv(yi = yi, V = vi, mods = ~ cbind(nmenprepandemic/nwomenprepandemic), random = list(~1 |
     Article.ID, ~1 | ID), data = subset(all_data, all_data$Self.reported.or.measured=="Measured"))
@@ -648,13 +649,105 @@ sp1 <- my.orchard(sm.area1, mod="Broad.productivity.measure.reordered", group = 
 
 sp1 
 
-ggsave("sfigure2.png", width=10, height=10, dpi=300)
+ggsave("figureS2.png", width=10, height=10, dpi=300)
 ```
 ### Leave-one-out model
 ```{r eval = TRUE, echo = TRUE, fig.width=9, fig.height=9}
-m<-rma.uni(yi, vi, random=~1|ID.article/ID.observation, data=all_data)
+
+
+
+#For survey-studies only
+msurvey<-rma.uni(yi, vi, random=~1|ID.article/ID.observation, slab = paste(Author), data=survey_data)
 m
-l1o<-leave1out(m)
-forest(l1o$estimate, sei=l1o$se, header=TRUE, xlab="Leave One Out Estimate", refline=coef(res),xlim=c(-39,24))
+l1osurvey<-leave1out(msurvey)
+l1osurvey
+png(file="figureS3.png",width     = 3.25,
+  height    = 3.25,
+  units     = "in",
+  res       = 1200,
+  pointsize = 4
+)
+par(
+  mar      = c(5, 5, 2, 2),
+  xaxs     = "i",
+  yaxs     = "i",
+  cex.axis = 2,
+  cex.lab  = 2
+)
+forest(slab=l1osurvey$slab,l1osurvey$estimate, sei=l1osurvey$se, header=TRUE, xlab="Leave One Out Estimate", refline=coef(l1osurvey))
+dev.off()
 ```
 
+### Interobserver reliability analysis
+```{r eval = FALSE, echo = FALSE, fig.width=9, fig.height=9}
+
+# You probably will have to install these two packages first:
+library(psych)
+library(dplyr)
+
+# Based on Kiran's report:
+# In Dieter's classification, there were: 30 included, 110 excluded
+# In Kiran's classification: of the 30 Dieter included, 25 included ; of the 110 Dieter excluded, 3 included
+
+# Setting up the data: for Dieter, we have 30 included study (with value 1 = included) and 110 excluded studies (with value 0 = excluded)
+DieterClassification<-c(rep(1,26),rep(0,114))
+DieterClassification<-c(rep(1,59),rep(0,361))
+
+# For Kiran: the first 25 are the article both agree to be included, the next five are the articles Dieter included but Kiran excluded, than there are 107 articles which both excluded, and 3 of the articles Dieter excluded that Kiran included
+KiranClassification<-c(rep(1,22),rep(0,4),rep(0,11),rep(1,1))
+KiranClassification<-c(rep(1,49),rep(0,10),rep(0,357),rep(1,4))
+
+# We combine these two in a dataframe, where each row is an article and the two columns are the respective classifications
+Classification<-as.data.frame(DieterClassification)
+Classification<-cbind(Classification,KiranClassification)
+
+# Next, we assess the Cohen's kappa of agreement
+cohen.kappa( Classification[,c("DieterClassification", "KiranClassification")], w = NULL, 
+            n.obs = NULL, alpha = 0.05, levels = NULL)
+
+# The estimate of 0.83 indicates decent agreement. Psychologists however sometimes strive to get this value to be 0.90 or higher.
+
+
+# Next, we work directly from the data we can download from Rayyan
+# Save the file from Rayyan as csv. After downloading them (via an email link), copy the customizations_log.csv file in the same folder as this script
+
+# We then tell R to look for the file in this folder
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# load the file
+articleclassifications<-read.csv("customizations_log.csv")
+
+#There is a single row for each classification, which lists the article id, the id of the classifier, and how they scored it. We can first separate the classifications for each of the two people
+
+DieterClassification<-articleclassifications[articleclassifications$user_email =="dieter_lukas@eva.mpg.de",]
+
+
+KiranClassification<-articleclassifications[articleclassifications$user_email =="k.g.l.lee@student.rug.nl",]
+
+
+# Next, we combine them. Whereas in the simulated example we had set up the order to match so that one row would always indicate one article, here we can link the classifications through the article id. Since Dieter performed fewer classifications, we join only those articles from Kiran that both classified
+Classification<-left_join(DieterClassification,KiranClassification,by="article_id")
+
+# We subset the dataframe to focus only on the columsn we are interested in, and rename them to match the example above
+Classification<-select(Classification,article_id,value.x ,value.y)
+colnames(Classification)<-c("article_id","DieterClassification","KiranClassification")
+
+# Rayyan appears to store the full history of classifications, so we exclude some articles that are still listed as maybe (exclude = -1, maybe = 0, include = 1)
+Classification<-Classification[Classification$DieterClassification!=0,]
+Classification<-Classification[Classification$KiranClassification!=0,]
+
+# Now, we can assess the agreement again. As mentioned above, there are sometimes multiple classifications for the same article, so there are more than 140 rows - and accordingly Cohen's kappa here is a bit smaller.
+cohen.kappa( Classification[,c("DieterClassification", "KiranClassification")], w = NULL, 
+             n.obs = NULL, alpha = 0.05, levels = NULL)
+
+
+if (!require("devtools")) {
+  install.packages("devtools")
+}
+devtools::install_github("MathiasHarrer/dmetar")
+library(dmetar)
+library(meta)
+library(tidyverse)
+data(OpioidMisuse)
+glimpse(OpioidMisuse)
+```

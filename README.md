@@ -23,10 +23,8 @@ Folders (numbered list) and its contents, with descriptions:
 7) Data and Analysis
 - “all_data.xlsx” containing all data used in analysis
 - “meta_data.xlsx” containing all data collected
-- “InterobserverReliability.r” R script investigating inter-observer reliability when screening articles
-- “Analysis-and-Plots.Rmd” R markdown file with all analysis and plots of effect sizes.
-- “Analysis-and-Plots.pdf” pdf file of knitted R markdown with analysis and plots of effect sizes.
-
+- “Analysis-and-Plots.Rmd” R markdown file with all analysis and plots.
+- “Analysis-and-Plots.pdf” pdf file of knitted R markdown with analysis and plots.
 
 8) Manuscript, figures, tables and supplementary materials
 - “figure1.png” figure 1 of report
@@ -35,14 +33,12 @@ Folders (numbered list) and its contents, with descriptions:
 - “figure4.png” figure 4 of report
 - “figure5.png” figure 5 of report
 - “figure6.png” figure 6 of report
-- “manuscript.docx” manuscript to be submitted
-- "manuscript_figures_table_suppl_embedded.docx" manuscript with figures, table, supplementary materials embedded.
-- “figures.docx” figures and figure legends to be submitted
-- "table1.docx" table 1 to be submitted
-- "supplementary_materials.docx" supplementary materials to be submitted
-- "PRISMA_checklist.docx" PRISMA checklist to be submitted
-- "GenderGapAcademiaCOVID-19PandemicMeta-Analysis.pdf" manuscript for eLife submission
-
+- "figureS2.png" figure S2 of report
+- “InitialSubmission_manuscript.docx” manuscript with figures, tables and supplementary figures embedded, and submitted to eLife before review.
+- “AfterReview_manuscript.docx” manuscript with figures, tables and supplementary figures embedded, and submitted to eLife after revisions recommended by reviewer
+- "GenderGapAcademiaCOVID-19PandemicMeta-Analysis.pdf" manuscript with code for eLife submission
+- "s1_supplementary_file_1_fulltextscreen.xlsx" Supplementary file 1 containing texts from the full text screen in the "References" sheet and their qualifiers missing as described in the "Qualifiers" sheet.
+- "s2_supplementary_file_2_meta_data.xlsx" Supplementary file 2 containing the meta-data of all variables extracted from each study (sheet "Data"), descriptions of the variables extracted (sheet "Variables"), the articles found in the scoping search (sheet "Scoping search") and any additional calculations performed to extract effect sizes (sheet "Calculations")
 
 The pre-print can be found on MetaRxiv DOI:10.31222/osf.io/56ren
 
