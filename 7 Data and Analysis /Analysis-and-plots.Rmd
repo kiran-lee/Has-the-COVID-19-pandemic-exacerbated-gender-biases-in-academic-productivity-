@@ -302,7 +302,8 @@ while (!is.null(dev.list()))  dev.off()
 
 my.orchard(m, mod="1", alpha=0.5,data = all_data, whisker=0.025, group = "Article.ID", xlab = "Effect size")+
      annotate("text", size=6, y=0.66, x=1.2, label=paste("-0.071 [-0.099, -0.043]"))+
-  scale_fill_manual(values=c("#DC267F"))
+  scale_fill_manual(values=c("#DC267F"))+
+ggplot2::theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 ggsave("figure1.png", width=10, height=10, dpi=300)
 
@@ -334,7 +335,8 @@ p1 <- my.orchard(m.area1, mod="Broad.productivity.measure.reordered", group = "A
      annotate("text", size=6, y=-0.9, x=3.3, label=paste("-0.192 [-0.272, -0.113]"))+
      annotate("text", size=6, y=-0.9, x=2.3, label=paste("-0.047 [-0.085, -0.008]"))+
      annotate("text", size=6, y=-0.9, x=1.3, label=paste("-0.053 [-0.087, -0.018]"))+
-  scale_fill_manual(values=c("#785EF0","#DC267F","#FE6100"))
+  scale_fill_manual(values=c("#785EF0","#DC267F","#FE6100"))+
+ggplot2::theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 p1 
 
@@ -389,7 +391,8 @@ my.orchard(research_field1, mod = "Broad.research.field.reordered", group = "Art
      annotate("text", size=6, y=0.5, x=3.13, label=paste("-0.083 [-0.113, -0.031]"))+
      annotate("text", size=6, y=0.5, x=2.13, label=paste("-0.017 [-0.069, 0.034]"))+
      annotate("text", size=6, y=0.5, x=1.13, label=paste("0.007 [-0.051, 0.064]"))+
-  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
+  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))+
+ggplot2::theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 ggsave("figure3.png", width=10, height=10, dpi=300)
 
@@ -405,7 +408,8 @@ my.orchard(research_field1m, mod = "Broad.research.field.reordered", group = "Ar
      annotate("text", size=6, y=-0.45, x=3.3, label=paste("-0.050 [-0.125, 0.024]"))+
      annotate("text", size=6, y=-0.45, x=2.3, label=paste("-0.003 [-0.057, 0.050]"))+
      annotate("text", size=6, y=-0.45, x=1.3, label=paste("-0.003 [-0.053, 0.048]"))+
-  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
+  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))+
+ggplot2::theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 ggsave("figure3.png", width=10, height=10, dpi=300)
 
@@ -488,7 +492,8 @@ ggplot(all_data_long, aes(x=factor(Period), y=as.numeric(value), color=factor(Br
   theme( panel.grid.major.x = element_blank() , panel.grid.major = element_line(size = 0.1, linetype = 'solid',
                                 colour = "gray"), 
   panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "gray"))+theme(axis.text=element_text(size=10))+scale_color_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
+                                colour = "gray"))+theme(axis.text=element_text(size=10))+scale_color_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))+
+ggplot2::theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 ggsave("figure4.png", width=5, height=5, dpi=300)
 
@@ -529,12 +534,13 @@ summary(authorship_position1)
 
 my.orchard(authorship_position, mod = "Specific.productivity.measure.reordered", group = "Article.ID", data = measured_data, whisker = 0.08, xlab = "Effect size",
     alpha = 0.5)+
-     annotate("text", size=6, y=-0.56, x=1.3, label=paste("-0.052 [-0.130, 0.026]"))+
-     annotate("text", size=6, y=-0.56, x=2.3, label=paste("-0.046 [-0.178, 0.087]"))+
-     annotate("text", size=6, y=-0.56, x=3.3, label=paste("-0.040 [-0.074, -0.006]"))+
-     annotate("text", size=6, y=-0.56, x=4.3, label=paste("-0.041 [-0.122, 0.040]"))+
-     annotate("text", size=6, y=-0.56, x=5.3, label=paste("-0.052 [-0.130, -0.026]"))+
-  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))
+     annotate("text", size=6, y=-0.56, x=1.3, label=paste("-0.040 [-0.094, 0.015]"))+
+     annotate("text", size=6, y=-0.56, x=2.3, label=paste("-0.045 [-0.173, 0.082]"))+
+     annotate("text", size=6, y=-0.56, x=3.3, label=paste("-0.040 [-0.073, -0.007]"))+
+     annotate("text", size=6, y=-0.56, x=4.3, label=paste("-0.058 [-0.123, 0.007]"))+
+     annotate("text", size=6, y=-0.56, x=5.3, label=paste("-0.045 [-0.107, 0.017]"))+
+  scale_fill_manual(values=c("#648FFF","#785EF0","#DC267F","#FE6100","#FFB000"))+
+ggplot2::theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 ggsave("figure5.png", width=10, height=10, dpi=300)
 ```
@@ -661,7 +667,7 @@ msurvey<-rma.uni(yi, vi, random=~1|ID.article/ID.observation, slab = paste(Autho
 m
 l1osurvey<-leave1out(msurvey)
 l1osurvey
-png(file="figureS3.png",width     = 3.25,
+png(file="figure7.png",width     = 3.25,
   height    = 3.25,
   units     = "in",
   res       = 1200,
