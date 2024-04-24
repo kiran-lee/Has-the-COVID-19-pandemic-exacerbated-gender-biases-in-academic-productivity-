@@ -43,5 +43,5 @@ Folders (numbered list) and its contents, with descriptions:
 - "s2_supplementary_file_2_meta_data.xlsx" Supplementary file 2 containing the meta-data of all variables extracted from each study (sheet "Data"), descriptions of the variables extracted (sheet "Variables"), the articles found in the scoping search (sheet "Scoping search") and any additional calculations performed to extract effect sizes (sheet "Calculations")
 - "Lee_etal_eLife_MDAR_checklist.pdf" Materials Design Analysis Reporting (MDAR) checklist for eLife.
 
-The pre-print can be found on MetaRxiv DOI:10.31222/osf.io/56ren
+The published, peer-revied paper can be found in (eLife)  [https://doi.org/10.7554/eLife.85427]
 
