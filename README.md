@@ -1,3 +1,9 @@
+This contains all the data and code for our study investigating the effect of the COVID-19 pandemic on the gender gap in academic productivity.
+
+The published, peer-revied paper can be found in [eLife] (https://doi.org/10.7554/eLife.85427)
+
+The work was presented at the Open Science 2023 (https://www.youtube.com/watch?v=XLU-9ENh0FY&t=1030s)
+
 Folders (numbered list) and its contents, with descriptions:
 
 1) Scoped articles
@@ -43,5 +49,5 @@ Folders (numbered list) and its contents, with descriptions:
 - "s2_supplementary_file_2_meta_data.xlsx" Supplementary file 2 containing the meta-data of all variables extracted from each study (sheet "Data"), descriptions of the variables extracted (sheet "Variables"), the articles found in the scoping search (sheet "Scoping search") and any additional calculations performed to extract effect sizes (sheet "Calculations")
 - "Lee_etal_eLife_MDAR_checklist.pdf" Materials Design Analysis Reporting (MDAR) checklist for eLife.
 
-The published, peer-revied paper can be found in [eLife] (https://doi.org/10.7554/eLife.85427)
+
 
